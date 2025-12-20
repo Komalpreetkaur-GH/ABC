@@ -206,8 +206,8 @@ elif "Supervised Learning" in options:
         params = {}
         with c_params:
             if model_choice == "Random Forest":
-                n_estimators = st.slider("Number of Trees", 10, 200, 50, 10)
-                max_depth = st.slider("Max Depth", 5, 50, 20)
+                n_estimators = st.slider("Number of Trees", 50, 300, 150, 10)
+                max_depth = st.slider("Max Depth", 10, 50, 25)
                 params['n_estimators'] = n_estimators
                 params['max_depth'] = max_depth
             else:
@@ -422,26 +422,59 @@ elif "Income Predictor" in options:
                 le = st.session_state['le']
                 result = le.inverse_transform(prediction)[0]
                 
-                st.markdown("<div style='height: 1rem;'></div>", unsafe_allow_html=True)
+                # Determine styling based on result
+                if result == ">50K":
+                    gradient = "linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(16, 185, 129, 0.05) 100%)"
+                    border_color = "rgba(16, 185, 129, 0.4)"
+                    text_color = "#10B981"
+                    glow = "0 0 40px rgba(16, 185, 129, 0.2)"
+                    icon = '<svg width="48" height="48" viewBox="0 0 24 24" fill="none"><path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" fill="#10B981" stroke="#10B981" stroke-width="1.5"/></svg>'
+                    label = "High Income"
+                else:
+                    gradient = "linear-gradient(135deg, rgba(99, 102, 241, 0.15) 0%, rgba(99, 102, 241, 0.05) 100%)"
+                    border_color = "rgba(99, 102, 241, 0.4)"
+                    text_color = "#6366F1"
+                    glow = "0 0 40px rgba(99, 102, 241, 0.2)"
+                    icon = '<svg width="48" height="48" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="#6366F1" stroke-width="1.5"/><path d="M12 8V12L15 15" stroke="#6366F1" stroke-width="1.5" stroke-linecap="round"/></svg>'
+                    label = "Standard Income"
                 
-                col_result, col_probs = st.columns([1, 1])
-                with col_result:
-                    if result == ">50K":
-                        st.success(f"Predicted Income Level: {result}")
-                    else:
-                        st.info(f"Predicted Income Level: {result}")
+                # Probability bar width
+                bar_width = prob_high if prob_high is not None else 50
                 
-                with col_probs:
-                    if prob_low is not None:
-                        st.markdown(f"""
-                            <div style="background: rgba(255,255,255,0.03); border-radius: 12px; padding: 12px; border: 1px solid rgba(255,255,255,0.06);">
-                                <div style="font-size: 0.7rem; color: #71717A; text-transform: uppercase; margin-bottom: 8px;">Probability</div>
-                                <div style="display: flex; gap: 16px;">
-                                    <div><span style="color: #71717A;"><=50K:</span> <span style="font-weight: 600;">{prob_low:.1f}%</span></div>
-                                    <div><span style="color: #71717A;">>50K:</span> <span style="font-weight: 600;">{prob_high:.1f}%</span></div>
+                st.markdown(f'''
+                    <div style="margin-top: 2rem; padding: 2rem; background: {gradient}; border: 2px solid {border_color}; border-radius: 20px; box-shadow: {glow}; text-align: center;">
+                        <div style="display: flex; justify-content: center; margin-bottom: 1rem;">
+                            {icon}
+                        </div>
+                        <div style="font-size: 0.75rem; color: #71717A; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.5rem;">Predicted Income Level</div>
+                        <div style="font-family: 'Outfit', sans-serif; font-size: 3rem; font-weight: 800; color: {text_color}; letter-spacing: -0.02em; margin-bottom: 0.5rem;">{result}</div>
+                        <div style="font-size: 1rem; color: #FAFAFA; font-weight: 500;">{label}</div>
+                    </div>
+                ''', unsafe_allow_html=True)
+                
+                # Probability gauge
+                if prob_low is not None:
+                    st.markdown(f'''
+                        <div style="margin-top: 1.5rem; padding: 1.25rem; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                                <span style="font-size: 0.7rem; color: #71717A; text-transform: uppercase; letter-spacing: 0.08em;">Confidence Score</span>
+                                <span style="font-size: 0.875rem; font-weight: 600; color: #FAFAFA;">{max(prob_low, prob_high):.1f}%</span>
+                            </div>
+                            <div style="position: relative; height: 8px; background: rgba(255,255,255,0.06); border-radius: 4px; overflow: hidden;">
+                                <div style="position: absolute; left: 0; top: 0; height: 100%; width: {bar_width}%; background: linear-gradient(90deg, #6366F1, #8B5CF6); border-radius: 4px; transition: width 0.6s ease;"></div>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; margin-top: 0.75rem;">
+                                <div style="text-align: left;">
+                                    <div style="font-size: 0.65rem; color: #52525B; text-transform: uppercase;">Less than 50K</div>
+                                    <div style="font-size: 1.125rem; font-weight: 700; color: #FAFAFA;">{prob_low:.1f}%</div>
+                                </div>
+                                <div style="text-align: right;">
+                                    <div style="font-size: 0.65rem; color: #52525B; text-transform: uppercase;">More than 50K</div>
+                                    <div style="font-size: 1.125rem; font-weight: 700; color: #FAFAFA;">{prob_high:.1f}%</div>
                                 </div>
                             </div>
-                        """, unsafe_allow_html=True)
+                        </div>
+                    ''', unsafe_allow_html=True)
 
 # --- Global Sidebar Footer ---
 with st.sidebar:
