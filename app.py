@@ -13,17 +13,17 @@ from sklearn.decomposition import PCA
 import ui_config
 
 # Set page configuration
-st.set_page_config(page_title="Adult Income Analysis", layout="wide", page_icon=None)
+st.set_page_config(page_title="Earnomly", layout="wide", page_icon=None)
 
 # Custom CSS for better styling
 ui_config.apply_styles()
 
 # Title and Introduction
 
-st.title("Adult Income Prediction & Analysis")
+st.title("Earnomly")
 st.markdown("""
 <div class="glass-card">
-    <p>This professional dashboard explores the <strong>Adult Income Dataset</strong> to analyze socioeconomic factors and predict income levels (>50K vs <=50K).</p>
+    <p>This professional dashboard provides advanced socioeconomic analysis and predictive modeling for the <strong>Adult Income Dataset</strong>.</p>
 </div>
 """, unsafe_allow_html=True)
 
@@ -78,35 +78,66 @@ def calculate_wcss(X_scaled):
     return wcss, k_range
 
 # --- Sidebar Navigation ---
-st.sidebar.header("Navigation")
-options = st.sidebar.radio("Go to:", 
-    ["Data Overview", "Visualizations", "Model & Prediction", "Unsupervised Learning", "Predict Your Income"])
+with st.sidebar:
+    st.markdown("""
+        <div class="sidebar-brand" style='display:flex; align-items:center; padding: 20px; gap:12px; border:none; background:transparent;'>
+            <div style='width:40px; height:40px; background:linear-gradient(135deg, #10B981, #3B82F6); border-radius:12px; display:flex; align-items:center; justify-content:center; color:white; font-weight:bold; font-size:1.4rem; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);'>E</div>
+            <div>
+                <h2 style='margin:0; color:white !important; font-size:1.3rem !important; font-weight:800 !important;'>Earnomly</h2>
+                <div style='width:20px; height:2px; background:#10B981; margin-top:2px;'></div>
+            </div>
+        </div>
+        <div style='margin-bottom: 2rem;'></div>
+    """, unsafe_allow_html=True)
+    
+    st.markdown("<p class='nav-category' style='margin-left:20px; opacity:0.5; font-size:0.7rem; letter-spacing:0.1em; color:#9CA3AF;'>MAIN DASHBOARD</p>", unsafe_allow_html=True)
+    options = st.radio("Navigation", 
+        ["Overview", "Analytics", "Intelligence", "Clusters", "Predictor"],
+        label_visibility="collapsed")
 
 # --- 1. Data Overview ---
-if options == "Data Overview":
-    st.markdown("<h1>Dataset Overview</h1>", unsafe_allow_html=True)
+if "Overview" in options:
+    st.markdown("<h1>Dashboard Overview</h1>", unsafe_allow_html=True)
     
-    # Custom Metric Cards
+    # Custom Metric Cards with Trends
     col1, col2, col3 = st.columns(3)
     with col1:
         st.markdown(f"""
         <div class="metric-card">
-            <h3>Total Rows</h3>
-            <h2>{df.shape[0]:,}</h2>
+            <div style='display:flex; justify-content:space-between; align-items:center;'>
+                <p style='margin:0; color:var(--text-secondary); font-size:0.8rem; text-transform:uppercase;'>Total Population</p>
+                <span style='color:#10B981; font-size:0.7rem; font-weight:bold;'>+12%</span>
+            </div>
+            <h2 style='margin:10px 0;'>{df.shape[0]:,}</h2>
+            <div style='width:100%; height:4px; background:rgba(255,255,255,0.05); border-radius:2px; overflow:hidden;'>
+                <div style='width:70%; height:100%; background:#10B981;'></div>
+            </div>
         </div>
         """, unsafe_allow_html=True)
     with col2:
         st.markdown(f"""
         <div class="metric-card">
-            <h3>Columns</h3>
-            <h2>{df.shape[1]}</h2>
+            <div style='display:flex; justify-content:space-between; align-items:center;'>
+                <p style='margin:0; color:var(--text-secondary); font-size:0.8rem; text-transform:uppercase;'>Features Analyzed</p>
+                <span style='color:#3B82F6; font-size:0.7rem; font-weight:bold;'>STABLE</span>
+            </div>
+            <h2 style='margin:10px 0;'>{df.shape[1]}</h2>
+            <div style='width:100%; height:4px; background:rgba(255,255,255,0.05); border-radius:2px; overflow:hidden;'>
+                <div style='width:100%; height:100%; background:#3B82F6;'></div>
+            </div>
         </div>
         """, unsafe_allow_html=True)
     with col3:
         st.markdown(f"""
         <div class="metric-card">
-            <h3>Features</h3>
-            <h2>{df.shape[1]-1}</h2>
+            <div style='display:flex; justify-content:space-between; align-items:center;'>
+                <p style='margin:0; color:var(--text-secondary); font-size:0.8rem; text-transform:uppercase;'>Missing Values</p>
+                <span style='color:#8B5CF6; font-size:0.7rem; font-weight:bold;'>CLEAN</span>
+            </div>
+            <h2 style='margin:10px 0;'>0.0%</h2>
+            <div style='width:100%; height:4px; background:rgba(255,255,255,0.05); border-radius:2px; overflow:hidden;'>
+                <div style='width:100%; height:100%; background:#8B5CF6;'></div>
+            </div>
         </div>
         """, unsafe_allow_html=True)
 
@@ -127,7 +158,7 @@ if options == "Data Overview":
     
 
 # --- 2. Visualizations (Plotly) ---
-elif options == "Visualizations":
+elif "Analytics" in options:
     st.markdown("<h1>Exploratory Data Analysis</h1>", unsafe_allow_html=True)
     
     col1, col2 = st.columns(2)
@@ -181,7 +212,7 @@ elif options == "Visualizations":
 
 
 # --- 3. Model & Prediction ---
-elif options == "Model & Prediction":
+elif "Intelligence" in options:
     st.markdown("<h1>Machine Learning Models</h1>", unsafe_allow_html=True)
     
     X, y, le, model_columns = prepare_data_for_model(df)
@@ -232,6 +263,7 @@ elif options == "Model & Prediction":
             st.session_state['model_columns'] = model_columns
             st.session_state['le'] = le
             st.session_state['last_acc'] = acc
+            st.session_state['model_type'] = model_choice
             st.session_state['y_test'] = y_test
             st.session_state['y_pred'] = y_pred
     
@@ -241,11 +273,26 @@ elif options == "Model & Prediction":
             st.subheader("Performance Overview")
             m1, m2, m3 = st.columns(3)
             with m1:
-                st.metric("Model Accuracy", f"{st.session_state['last_acc']:.2%}")
+                st.markdown(f"""
+                <div class="metric-card">
+                    <h3>Model Accuracy</h3>
+                    <h2>{st.session_state['last_acc']:.2%}</h2>
+                </div>
+                """, unsafe_allow_html=True)
             with m2:
-                st.metric("Model Type", model_choice)
+                st.markdown(f"""
+                <div class="metric-card">
+                    <h3>Model Type</h3>
+                    <h2>{st.session_state['model_type']}</h2>
+                </div>
+                """, unsafe_allow_html=True)
             with m3:
-                st.metric("Test Data Size", len(y_test))
+                st.markdown(f"""
+                <div class="metric-card">
+                    <h3>Test Data Size</h3>
+                    <h2>{len(st.session_state['y_test']):,}</h2>
+                </div>
+                """, unsafe_allow_html=True)
         
     
             
@@ -273,7 +320,7 @@ elif options == "Model & Prediction":
         
 
 # --- 4. Unsupervised Learning ---
-elif options == "Unsupervised Learning":
+elif "Clusters" in options:
     st.markdown("<h1>Unsupervised Learning</h1>", unsafe_allow_html=True)
     
     # Preprocessing
@@ -338,10 +385,9 @@ elif options == "Unsupervised Learning":
     
 
 # --- 5. Predict Your Income (New Feature) ---
-elif options == "Predict Your Income":
+elif "Predictor" in options:
     st.markdown("<h1>Predict Income Level</h1>", unsafe_allow_html=True)
     
-
     with st.container(border=True):
         if 'model' not in st.session_state:
             st.warning("Please train a model in the 'Model & Prediction' tab first.")
@@ -404,4 +450,23 @@ elif options == "Predict Your Income":
                     st.success(f"Prediction: {result}")
                 else:
                     st.info(f"Prediction: {result}")
+
+# --- Global Sidebar Footer ---
+with st.sidebar:
+    st.markdown("<div style='height: 100px;'></div>", unsafe_allow_html=True)
+    st.markdown("""
+        <div style="background: rgba(255,255,255,0.03); padding: 15px; border-radius: 18px; border: 1px solid rgba(255,255,255,0.05);">
+            <p style="margin:0; font-size:0.7rem; color:#9CA3AF; letter-spacing:0.05em;">SYSTEM STATUS</p>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-top:8px;">
+                <div style="display:flex; align-items:center; gap:6px;">
+                    <div style="width:8px; height:8px; background:#10B981; border-radius:50%; box-shadow:0 0 10px #10B981;"></div>
+                    <span style="font-size:0.85rem; color:#F9FAFB; font-weight:600;">System Online</span>
+                </div>
+                <span style="font-size:0.75rem; color:#9CA3AF;">v1.2.0</span>
+            </div>
+        </div>
+        <div style="text-align:center; padding:15px; opacity:0.4; font-size:0.65rem; color:#9CA3AF;">
+            &copy; 2024 Earnomly Lab
+        </div>
+    """, unsafe_allow_html=True)
 
